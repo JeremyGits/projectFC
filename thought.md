@@ -516,7 +516,9 @@ Appendix C: Mathematical Notations
 - D(B): Difficulty of block B
 </pre>
 
+<pre>
 Document Version: 1.1
 Last Updated: 2026-02-25
 Authors: Fleetitoshi Nakamoto
-License: MIT
+License: 🤷‍♂️
+</pre>
