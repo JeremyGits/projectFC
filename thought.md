@@ -1,299 +1,277 @@
-# Fleet Credits: A Peer-to-Peer Electronic Credit System
+Fleet Credits: A Peer-to-Peer Electronic Credit System
+================================================================================
+Version 1.1
+Based on Dogecoin Core Architecture
 
-**Version 1.0**  
-**Based on Dogecoin Core Architecture**
+Abstract
+--------------------------------------------------------------------------------
+Fleet Credits (FC) is a decentralized electronic credit system enabling direct value exchange without financial intermediaries. Using a Scrypt-based Proof-of-Work consensus mechanism and an optional MimbleWimble Extension Block (MWEB), FC supports high-velocity micro-transactions, contribution-based rewards, and privacy-enhanced transactions. Diverging from scarcity-driven cryptocurrencies, FC implements post-scarcity economic principles: unlimited supply issuance, zero-fee micro-transactions, and rewards for community contributions like code mentorship. This paper outlines the technical architecture, economic model, and implementation strategy for a blockchain-based credit system optimized for equitable contribution recognition and scalability.
 
----
+1. Introduction
+--------------------------------------------------------------------------------
+Traditional payment systems rely on financial institutions, suffering from trust-based weaknesses. Fleet Credits proposes a cryptographic proof-based transaction system, enhanced by privacy and scalability features.
 
-## Abstract
+1.1 Motivation
+Current cryptocurrencies enforce scarcity via supply caps. In a post-scarcity economy with abundant production capacity, FC implements:
+- Continuous issuance via fixed block rewards without supply constraints
+- Zero-fee micro-transactions to enable high-velocity exchanges
+- Contribution rewards for community value creation, including code mentorship
+- Cross-value interoperability with fiat and cryptocurrencies
+- Privacy and scalability via MWEB for secure, efficient transactions
 
-Fleet Credits (FC) is a decentralized electronic credit system enabling direct value exchange between parties without financial intermediaries. The system uses a decentralized timestamp server implemented through a Scrypt-based Proof-of-Work consensus mechanism. Fleet Credits diverges from traditional cryptocurrency models by implementing post-scarcity economic principles: unlimited supply issuance, zero-fee micro-transactions, and contribution-based reward mechanisms. This paper proposes the technical architecture, economic model, and implementation strategy for a blockchain-based credit system optimized for high-transaction velocity and equitable contribution recognition.
+1.2 Core Innovations
+1. Dynamic Fee Structure: Zero-cost micro-payments with scalable fees
+2. Contribution Verification: Cryptographic proofs for community contributions, including mentorship
+3. Community Reserve: Automated fee redirection to fund public goods
+4. MWEB Integration: Optional privacy and scalability for transactions
 
----
+2. Network Architecture
+--------------------------------------------------------------------------------
+Fleet Credits uses a peer-to-peer distributed timestamp server on a Scrypt-based Proof-of-Work chain, with an optional MWEB for privacy and scalability.
 
-## 1. Introduction
+2.1 Timestamp Server
+The timestamp server:
+1. Hashes a block of contributions
+2. Broadcasts the hash
+3. Waits for proof-of-work
+4. Chains timestamps to form a verifiable record
 
-Traditional payment systems rely on financial institutions to process transactions. While the system works well for most transactions, it still suffers from inherent trust-based weaknesses. Fleet Credits proposes an alternative transaction system based on cryptographic proof rather than trust.
-
-### 1.1 Motivation
-
-Current cryptocurrency models enforce scarcity through supply caps and halving mechanisms. However, in a post-scarcity economy where production capacity approaches infinite abundance, a different monetary model is required. Fleet Credits implements:
-
-- **Continuous issuance** via fixed block rewards without supply constraints
-- **Zero-fee micro-transactions** to enable high-velocity exchanges
-- **Contribution rewards** to incentivize community value creation
-- **Cross-value interoperability** with fiat and existing cryptocurrencies
-
-### 1.2 Core Innovations
-
-The system introduces three novel mechanisms beyond traditional blockchain architectures:
-
-1. **Dynamic Fee Structure**: Fees scale to transaction size, enabling zero-cost micro-payments
-2. **Contribution Verification**: Cryptographic proofs enable trustless validation of community contributions
-3. **Community Reserve**: Automated fee redirection to fund public goods
-
----
-
-## 2. Network Architecture
-
-Fleet Credits implements a peer-to-peer distributed timestamp server on a hash-based Proof-of-Work chain.
-
-### 2.1 Timestamp Server
-
-The timestamp server consists of the following algorithm:
-
-1. Take the hash of a block of contributions to be timestamped
-2. Broadcast the hash widely
-3. Wait for enough work to be performed on the hash
-4. The timestamp proves that the data existed at the time
-
-Each timestamp includes the previous timestamp in its hash, forming a chain. Each timestamp is incorporated into the hash of its successor, reinforcing the chain.
-
-### 2.2 Hash-Based Proof-of-Work Chain
-
-The network timestamps transactions by hashing them into an ongoing chain of hash-based proof-of-work, forming a record that cannot be changed without redoing the proof-of-work. The longest chain not only serves as proof of the sequence of events witnessed, but proof that it came from the largest pool of CPU power.
-
-The proof-of-work involves scanning for a value that when hashed, such as with SHA-256, the hash begins with a number of zero bits. The average work required is exponential in the number of zero bits required and can be verified by executing a single hash.
-
-For Fleet Credits, the hash function is Scrypt, which provides:
-
+2.2 Hash-Based Proof-of-Work Chain
+Transactions are timestamped into a hash-based Proof-of-Work chain, using Scrypt for:
 1. Memory-hard properties preventing ASIC dominance
-2. Accessibility to standard hardware miners
+2. Accessibility to standard hardware
 3. Energy efficiency compared to SHA-256
 
-### 2.3 Network Protocol
+2.3 Network Protocol
+1. Broadcast new transactions
+2. Collect transactions into a block
+3. Find proof-of-work
+4. Broadcast valid block
+5. Accept block if transactions are valid
+6. Chain blocks using previous hash
 
-The steps to run the network are as follows:
+MWEB transactions follow a similar protocol with confidential commitments.
 
-1. New transactions are broadcast to all nodes
-2. Each node collects new transactions into a block
-3. Each node works on finding a difficult proof-of-work for its block
-4. When a node finds a proof-of-work, it broadcasts the block to all nodes
-5. Nodes accept the block only if all transactions in it are valid and not already spent
-6. Nodes express their acceptance of the block by working on creating the next block in the chain, using the hash of the accepted block as the previous hash
+3. Transaction Model
+--------------------------------------------------------------------------------
+3.1 Standard Transactions
+Transactions move value from inputs to outputs, preventing double-spends via block hashing.
 
----
-
-## 3. Transaction Model
-
-### 3.1 Standard Transactions
-
-A transaction moves value from inputs to outputs. Each input is a reference to a previous transaction's output. A double-spend is prevented by including the previous transaction in the hash of the current block, which serves as a proof-of-work.
-
-### 3.2 Fee Structure
-
-Transaction fees are calculated dynamically based on transaction size and network conditions:
-
-```
+3.2 Fee Structure
+[pseudocode]
 fee(tx) = {
     0,                                      if total_output(tx) < 1000 FC
     min(tx_size × 0.2 FC/kB, cap),          otherwise
 }
-```
+- total_output(tx): Sum of output values in FC
+- tx_size: Transaction size in kilobytes
+- cap: Maximum fee (default: 100 FC)
 
-Where:
-- `total_output(tx)` is the sum of all output values in FC
-- `tx_size` is the transaction size in kilobytes
-- `cap` is a configurable maximum fee (default: 100 FC)
+MWEB transactions maintain zero fees for micro-transactions, using cut-through for efficiency.
 
-The 1000 FC threshold enables frictionless micro-transactions while maintaining network security through fees on larger transactions.
-
-### 3.3 Community Reserve Allocation
-
-A portion of non-zero fees is allocated to the Community Reserve:
-
-```
+3.3 Community Reserve Allocation
+[pseudocode]
 reserve_allocation = fee(tx) × 0.01
-```
+Reserve funds are managed via a multisig wallet, with MWEB transactions hiding amounts for security.
 
-The Community Reserve is managed by a multisig wallet with governance-controlled spending rules.
-
-### 3.4 Transaction Verification
-
+3.4 Transaction Verification
 A transaction is valid if:
+1. Inputs reference unspent outputs
+2. Input values cover outputs and fees
+3. Cryptographically signed
+4. Within network size limits
 
-1. All inputs reference valid, unspent previous outputs
-2. The sum of input values equals or exceeds the sum of output values (including fees)
-3. The transaction is properly cryptographically signed
-4. The transaction size does not exceed network limits
+MWEB transactions use Pedersen commitments and ring signatures for privacy.
 
----
+4. Contribution Reward System
+--------------------------------------------------------------------------------
+4.1 Motivation
+FC rewards computational effort and community contributions, including code mentorship, to incentivize public goods.
 
-## 4. Contribution Reward System
-
-### 4.1 Motivation
-
-Traditional Proof-of-Work rewards only computational effort. Fleet Credits extends rewards to include verifiable community contributions, creating economic incentives for public goods.
-
-### 4.2 Contribution Transaction Format
-
-A contribution transaction (`contrib_tx`) is a special transaction type that includes:
-
-```
+4.2 Contribution Transaction Format
+[pseudocode]
 ContribTransaction = {
     timestamp: uint64,
     contributor: public_key,
-    contribution_type: enum,
+    contribution_type: enum(CODE_CONTRIBUTION, CHARITABLE_ACT, CREATIVE_WORK, EDUCATIONAL_CONTENT, CODE_MENTORSHIP),
     proof_data: bytes,
     signature: signature
 }
-```
 
-Where `contribution_type` can be:
-- CODE_CONTRIBUTION: Open-source code commits
-- CHARITABLE_ACT: Verified charitable donations
-- CREATIVE_WORK: Art, writing, music with IPFS hash
-- EDUCATIONAL_CONTENT: Teaching materials or courses
-
-### 4.3 Proof Verification
-
-For automated verification (e.g., GitHub commits):
-
-```
-verify_code_contribution(tx) → bool {
-    commit_hash = tx.proof_data
-    if github_api.verify_commit(commit_hash):
-        return true
-    return false
+**CODE_MENTORSHIP**:
+- Mentors validate novice coders’ submissions, providing feedback.
+[pseudocode]
+MentorshipTransaction = {
+    timestamp: uint64,
+    mentor: public_key,
+    mentee: public_key,
+    contribution_type: CODE_MENTORSHIP,
+    proof_data: {
+        code_commit: hash,
+        feedback: string,
+        approval_status: enum(APPROVED, REJECTED, NEEDS_WORK),
+        improvement_commit: hash
+    },
+    mentor_signature: signature,
+    mentee_signature: signature
 }
-```
 
-For manual verification (e.g., charitable acts):
-
-```
-verify_charitable_contribution(tx, oracles) → bool {
-    votes = []
-    for oracle in oracles:
-        if oracle.verify(tx.proof_data):
-            votes.append(1)
-        else:
-            votes.append(0)
-    return sum(votes) >= (oracles.length * 3 / 5)
+MWEB variant:
+[pseudocode]
+MWEB_ContribTransaction = {
+    timestamp: uint64,
+    contributor: blinded_pubkey,
+    contribution_type: enum,
+    proof_data: bytes,
+    commitment: pedersen_commitment,
+    signature: ring_signature
 }
-```
 
-### 4.4 Block Reward Calculation
+4.3 Proof Verification
+To prevent abuse:
+1. **Code Contributions**:
+   - Verify quality (>10 lines, passes linting) and account history (>30 days).
+   [pseudocode]
+   verify_code_submission(tx) → bool {
+       commit = github_api.get_commit(tx.proof_data.code_commit)
+       return commit.lines_changed > 10 && commit.passes_lint &&
+              github_api.account_age(tx.contributor) > 30_days
+   }
 
-The block reward is calculated as:
+2. **Code Mentorship**:
+   - Validate feedback (>50 words, non-boilerplate) and approval status.
+   - Randomly audit 10% of transactions via oracles (3/5 agreement).
+   - Require identity verification (e.g., DID).
+   [pseudocode]
+   verify_mentorship(tx, oracles) → bool {
+       if length(tx.proof_data.feedback) > 50 &&
+          !is_boilerplate(tx.proof_data.feedback) &&
+          identity_verified(tx.mentor) && identity_verified(tx.mentee):
+           if random_audit_trigger():
+               votes = [oracle.verify(tx.proof_data) for oracle in random_oracle_selection(oracles)]
+               return sum(votes) >= (oracles.length * 3 / 5)
+           return true
+       return false
+   }
 
-```
+3. **Engagement Verification**:
+   - Educational content requires quiz responses (80% accuracy) or time-based interaction.
+   [pseudocode]
+   verify_engagement(tx) → bool {
+       if tx.contribution_type == EDUCATIONAL_CONTENT:
+           quiz_result = smart_contract.verify_quiz(tx.proof_data)
+           return quiz_result.score >= 0.8
+       return false
+   }
+
+4. **Community Oversight**:
+   - 24-hour challenge period for flagging suspicious contributions.
+   - Rewards flaggers 100 FC for valid reports.
+
+4.4 Block Reward Calculation
+[pseudocode]
 base_reward = 10000 FC
-
 bonus_multiplier = {
     1.05,   if contrib_tx verified and bonus level = LOW
     1.10,   if contrib_tx verified and bonus level = MEDIUM
     1.15,   if contrib_tx verified and bonus level = HIGH
     1.20,   if contrib_tx verified and bonus level = CRITICAL
 }
-
 block_reward = base_reward × bonus_multiplier
-```
 
-The bonus level is determined by:
-- Contribution type
-- Impact assessment
-- Verification method (automated vs. oracle-based)
-- Historical contribution pattern
+**Mentorship Rewards**:
+- Mentees: 1000 FC base + 500 FC for improvements; milestones (5, 10 contributions) grant 1.10x, 1.15x bonuses.
+- Mentors: 2000 FC per review + 1.10x–1.15x for complexity; reputation points unlock higher tiers.
 
-### 4.5 Replay Prevention
+4.5 Replay Prevention
+Contributions include timestamps and block heights to prevent replays.
 
-Contribution transactions include timestamps and are bound to specific block heights to prevent replay across different blocks or chains. The same contribution proof cannot be used in multiple blocks.
+4.6 Mentorship-Based Learning Ecosystem
+Experienced coders (“real coders”) mentor novices (“vibe coders”), who become mentors:
+- **Vibe Coder Incentives**: 1000 FC for valid code, 500 FC for improvements, bonuses for milestones.
+- **Real Coder Incentives**: 2000 FC per review, reputation points for governance.
+- **Learning Pathways**: 500 FC for completing tutorials via the wallet interface.
+- **Transition**: Vibe coders with 10 contributions and >100 reputation become mentors.
 
----
+**Chart: Vibe Coder Progression**
+[Insert Image: vibe_coder_progression.png]
 
-## 5. Consensus Mechanism
-
-### 5.1 Proof-of-Work Parameters
-
-Fleet Credits uses Scrypt as its Proof-of-Work hash function:
-
-```
-scrypt(passphrase, salt, N, r, p, dkLen)
-```
-
-Where:
-- `N` = CPU/memory cost parameter (2^14)
-- `r` = block size parameter (8)
-- `p` = parallelization parameter (1)
+5. Consensus Mechanism
+--------------------------------------------------------------------------------
+5.1 Proof-of-Work Parameters
+Scrypt parameters:
+- N = 2^14, r = 8, p = 1
 - Target block time: 60 seconds
 
-### 5.2 Difficulty Adjustment
-
-The difficulty adjusts every block to maintain the target block time:
-
-```
+5.2 Difficulty Adjustment
+[pseudocode]
 new_difficulty = old_difficulty × (target_time / actual_time)
-```
 
-Where `actual_time` is the time between the current block and the block 144 blocks ago.
-
-### 5.3 Network Parameters
-
+5.3 Network Parameters
 | Parameter | Value | Description |
 |-----------|-------|-------------|
 | Block Time | 60s | Target time between blocks |
-| Block Size | 2 MB | Maximum block size |
-| Base Reward | 10,000 FC | Fixed per-block issuance |
+| Block Size | 2 MB | Maximum block size (main chain) |
+| Base Reward | 10,000 FC | Fixed issuance |
 | Difficulty Adjustment | Every block | Dynamic adjustment |
 | Halving | None | Unlimited supply |
 
----
+MWEB increases effective block capacity (~2.6 MB) via cut-through.
 
-## 6. Economic Model
+6. Economic Model
+--------------------------------------------------------------------------------
+6.1 Money Supply
+[pseudocode]
+annual_supply_increase = 10,000 FC/block × 525,600 blocks/year = 5.256 × 10^9 FC/year
 
-### 6.1 Money Supply
+6.2 Value Mechanism
+Value derives from:
+1. Velocity: High transaction throughput
+2. Utility: Contribution rewards
+3. Interoperability: DEX integration
+4. Network Effects: Growing adoption
 
-Fleet Credits implements unlimited money supply:
-
-```
-annual_supply_increase = 10,000 FC/block × 525,600 blocks/year
-                       = 5.256 × 10^9 FC/year
-```
-
-Unlike fixed-supply cryptocurrencies, Fleet Credits follows a post-scarcity model where issuance continues indefinitely.
-
-### 6.2 Value Mechanism
-
-In the absence of artificial scarcity, value derives from:
-
-1. **Velocity**: High transaction throughput creates demand
-2. **Utility**: Contribution rewards drive adoption
-3. **Interoperability**: DEX integration enables price discovery
-4. **Network Effects**: Growing user base increases utility
-
-### 6.3 Inflation Management
-
-While supply increases indefinitely, inflation rate decreases over time:
-
-```
+6.3 Inflation Management
+[pseudocode]
 inflation_rate(t) = annual_issuance / circulating_supply(t)
-```
 
-As `circulating_supply(t)` grows, `inflation_rate(t)` asymptotically approaches zero.
-
-### 6.4 Community Reserve Dynamics
-
-The Community Reserve accumulates fees over time:
-
-```
+6.4 Community Reserve Dynamics
+[pseudocode]
 reserve_balance(T) = Σ (fee(tx) × 0.01) for all tx in blocks 0..T
-```
 
-Governance rules determine spending from the reserve, typically funding:
-- Open-source development grants
-- Educational initiatives
-- Infrastructure improvements
-- Security audits
+6.5 Value Creation Scenarios
+1. Micro-Transaction Economy: Content creators receive 10 FC tips per article read. Zero-fee transactions drive millions of daily transactions, as seen in Litecoin’s high-throughput MWEB usage (~100,000/day).
+2. Public Goods Funding: Community Reserve funds security audits (e.g., 1M FC), enhancing infrastructure, similar to Zcash’s shielded development funds.
+3. Merchant Integration: Merchants accept FC via DEX, converting to fiat, as Monero supports private donations (e.g., WikiLeaks).
 
----
+6.6 Comparison to High-Supply Cryptocurrencies
+| Feature | Fleet Credits | Dogecoin |
+|---------|---------------|----------|
+| Supply | 5.256B FC/year | 5B DOGE/year |
+| Fees | Zero for <1000 FC | Low, non-zero |
+| Rewards | PoW + Contribution | PoW only |
+| Governance | On-chain, Reserve | Informal |
 
-## 7. Governance
+FC’s zero-fee micro-transactions and mentorship rewards drive higher velocity than Dogecoin.
 
-### 7.1 On-Chain Voting
+6.7 Simulating Value Stability
+Simulation:
+- Assumptions: 5.256B FC/year issuance, 1M daily micro-transactions (100 FC), 20% adoption growth.
+- Results: By Year 5, inflation falls to 20%, demand reaches 75.7B FC/year.
 
-Fleet Credits implements on-chain governance through voting transactions:
+**Chart: Inflation vs. Demand**
+[Insert Image: inflation_demand.png]
 
-```
+6.8 Addressing Unlimited Supply Concerns
+- Velocity-Driven Demand: High transaction volume ensures FC is spent, not hoarded.
+- Utility: Mentorship and merchant integration drive adoption.
+- Mitigations: MWEB enhances scalability, reserve reinvests fees.
+- Analogy: Like fiat, FC’s value comes from activity, with blockchain governance ensuring transparency.
+
+7. Governance
+--------------------------------------------------------------------------------
+7.1 On-Chain Voting
+[pseudocode]
 VoteTransaction = {
     proposal_id: hash256,
     voter: public_key,
@@ -301,233 +279,162 @@ VoteTransaction = {
     voting_power: amount,
     signature: signature
 }
-```
-
-Voting power is proportional to stake:
-
-```
 voting_power = min(FC_balance, cap_per_address)
-```
 
-Where `cap_per_address` prevents whale domination.
+7.2 Governance Proposals
+- Submission fee: 10,000 FC
+- Minimum stake: 100,000 FC
+- Voting period: 7 days
+- Quorum: 10% of circulating supply
 
-### 7.2 Governance Proposals
+7.3 Proposal Types
+1. Parameter changes
+2. Reserve spending
+3. Feature proposals
+4. Oracle elections
 
-Proposals require:
-1. Submission fee: 10,000 FC (prevents spam)
-2. Minimum stake: 100,000 FC to submit
-3. Voting period: 7 days
-4. Quorum: 10% of circulating supply
+7.4 Execution
+Approved proposals execute via protocol upgrades or multisig transactions, with MWEB for private reserve disbursements.
 
-### 7.3 Proposal Types
-
-1. **Parameter Changes**: Adjust fee caps, bonus rates, etc.
-2. **Reserve Spending**: Allocate Community Reserve funds
-3. **Feature Proposals**: Request new functionality
-4. **Oracle Elections**: Add or remove oracle validators
-
-### 7.4 Execution
-
-Approved proposals are executed automatically through protocol upgrades or multisig wallet transactions for the Community Reserve.
-
----
-
-## 8. Cross-Value Integration
-
-### 8.1 Decentralized Exchange Integration
-
-Fleet Credits integrates with DEX protocols for liquidity:
-
-```
+8. Cross-Value Integration
+--------------------------------------------------------------------------------
+8.1 Decentralized Exchange Integration
+[pseudocode]
 DEXSwap = {
     input: amount_in FC,
     output_token: address,
     output_min: amount,
     deadline: timestamp
 }
-```
 
-Initial liquidity pairs:
-- FC/USDC (fiat peg)
-- FC/BTC (crypto integration)
-- FC/ETH (DeFi compatibility)
-
-### 8.2 Payment Gateway API
-
-Merchants can accept Fleet Credits via payment processors that:
-1. Convert FC to fiat at market rates
-2. Handle transaction fees
-3. Provide instant settlement
-
-```
+8.2 Payment Gateway API
+[pseudocode]
 MerchantAPI = {
     create_invoice(amount_fiat, description) → address,
     verify_payment(address) → bool,
     withdraw_to_bank(fc_address) → transaction_id
 }
-```
 
-### 8.3 Oracle Price Feeds
-
-Price oracles provide real-time FC/USD rates:
-
-```
+8.3 Oracle Price Feeds
+[pseudocode]
 getPriceFeed() → {
     fc_usd_rate: float,
     timestamp: uint64,
     confidence_interval: float
 }
-```
 
-Price feeds are aggregated from multiple sources to prevent manipulation.
+9. Security Considerations
+--------------------------------------------------------------------------------
+9.1 51% Attack Prevention
+1. Consensus finality: 12 confirmations
+2. Network monitoring for hashrate centralization
+3. High attack cost
 
----
+9.2 Oracle Security
+1. 3/5 oracle agreement
+2. 500,000 FC stake requirement
+3. Reputation system with slashing
+4. Randomized oracle selection
 
-## 9. Security Considerations
+9.3 Spam Prevention
+1. Rate limiting: 5 transactions/hour/address
+2. Minimum output: 546 FC
+3. Mempool size limits
+4. Dynamic fee escalation
 
-### 9.1 51% Attack Prevention
+9.4 Smart Contract Security
+1. Formal verification
+2. Professional audits
+3. Time-locked upgrades
+4. Multisig control
 
-Fleet Credits resists 51% attacks through:
+9.5 Anti-Bot Measures
+1. Quality Checks: Code submissions (>10 lines, linting); mentorship feedback (>50 words).
+2. Rate Limits: 3 submissions/day/mentee, 5 reviews/day/mentor, enforced on main chain and MWEB.
+3. Penalties: 10,000 FC penalty, 72-hour cooldown for fraud, redirected to reserve.
+4. Collusion Detection: Flags repeated mentor-mentee pairs or address clusters.
+5. Proof-of-Humanity: Verified identities (e.g., DID, GitHub) for MWEB rewards.
+6. MWEB Auditing: View keys enable selective disclosure for oracle audits.
 
-1. **Consensus Finality**: 12 confirmations (~12 minutes) for large transactions
-2. **Network Monitoring**: Alert systems for hashrate centralization
-3. **Economic Incentives**: Attack cost exceeds potential benefit
+10. Implementation
+--------------------------------------------------------------------------------
+10.1 Codebase
+Fork of Dogecoin Core (v1.14), modified for:
+1. Block reward (10,000 FC)
+2. Fee structure
+3. Contribution and mentorship support
+4. MWEB integration
+5. Governance voting
 
-### 9.2 Oracle Security
+10.2 Network Deployment
+- Testnet: Q2 2026 (P2P Port 44556, RPC Port 44555)
+- Mainnet: Q1 2027 (P2P Port 22556, RPC Port 22555, adjusted for MWEB)
 
-Oracle collusion is prevented by:
-1. Requiring 3 of 5 oracles to agree
-2. Oracle stake requirements (500,000 FC minimum)
-3. Reputation system with slashing for malicious behavior
-4. Rotation mechanism for oracle selection
+10.3 Wallet Implementation
+1. Standard features: Send, receive, stake
+2. Contribution interface: Submit/track contributions
+3. Governance voting
+4. DEX integration
+5. Price display
+6. MWEB toggle for private transactions
 
-### 9.3 Spam Prevention
+10.4 Mining Compatibility
+Compatible with Scrypt-capable CPU, GPU, and ASIC miners.
 
-Zero-fee transactions could enable spam. Mitigations include:
+11. Future Research Directions
+--------------------------------------------------------------------------------
+11.1 Layer-2 Scaling
+- State channels
+- Sidechains
+- Off-chain oracle networks
 
-1. **Rate Limiting**: Maximum transactions per address per hour
-2. **Minimum Output Size**: 546 FC minimum prevents dust
-3. **Mempool Size Limits**: Reject transactions exceeding thresholds
-4. **Dynamic Fee Escalation**: Fees increase with transaction count
+11.2 Enhanced Contribution Types
+- Environmental actions
+- Healthcare contributions
+- Infrastructure development
 
-### 9.4 Smart Contract Security
-
-Governance contracts are:
-1. Formally verified where possible
-2. Professionally audited before deployment
-3. Time-locked for upgrades
-4. Multi-signature controlled
-
----
-
-## 10. Implementation
-
-### 10.1 Codebase
-
-Fleet Credits is a fork of Dogecoin Core (v1.14), modified for:
-
-1. Block reward adjustment (10,000 FC)
-2. Fee structure implementation
-3. Contribution transaction support
-4. Oracle integration framework
-5. Governance voting system
-
-### 10.2 Network Deployment
-
-**Testnet Phase** (P2P Port 44556, RPC Port 44555):
-- Launch date: Q2 2026
-- Purpose: Feature testing, economic modeling
-- Duration: 6 months minimum
-
-**Mainnet Phase** (P2P Port 22556, RPC Port 22555):
-- Launch date: Q4 2026
-- Genesis block: Fair launch, no premine
-- Distribution: Mining from block 1
-
-### 10.3 Wallet Implementation
-
-The Fleet Credits wallet provides:
-
-1. **Standard Features**: Send, receive, stake
-2. **Contribution Interface**: Submit and track contributions
-3. **Governance Voting**: Cast votes on proposals
-4. **DEX Integration**: Swap FC for other assets
-5. **Price Display**: Real-time FC/USD rates
-
-### 10.4 Mining Compatibility
-
-Fleet Credits is compatible with:
-- Any Scrypt-capable miner
-- CPU mining (accessibility)
-- GPU mining (efficiency)
-- ASIC mining (specialized hardware)
-
----
-
-## 11. Future Research Directions
-
-### 11.1 Layer-2 Scaling
-
-Potential layer-2 solutions include:
-- State channels for instant payments
-- Sidechains for additional functionality
-- Off-chain oracle networks for contribution verification
-
-### 11.2 Enhanced Contribution Types
-
-Future contribution categories may include:
-- Environmental actions (carbon credits, reforestation)
-- Healthcare contributions (medical data sharing, research participation)
-- Infrastructure development (mesh networks, open-source hardware)
-
-### 11.3 Privacy Enhancements
-
-Optional privacy features:
-- Confidential transactions
+11.3 Privacy Enhancements
 - Zero-knowledge proofs
 - Mixing protocols
 
-### 11.4 AI Integration
+11.4 MimbleWimble Extension Block (MWEB)
+MWEB enhances FC by:
+1. Privacy for Contributions: Hides reward amounts, as Monero supports private donations.
+2. Scalability for Micro-Transactions: Cut-through enables millions of daily transactions, like Litecoin’s MWEB (~100,000/day).
+3. Secure Reserve Management: Shields reserve allocations, as Zcash protects development funds.
+4. Mentorship Support: Protects mentor-mentee rewards, like Grin’s community grants.
 
-Long-term vision:
+Implementation:
+- Fork Litecoin’s MWEB codebase.
+- Route micro-transactions and mentorship rewards through MWEB.
+- Use view keys for governance audits.
+
+Challenges:
+- Development complexity extends timeline to Q1 2027.
+- Privacy requires oracle audits and reputation systems to prevent abuse.
+
+11.5 AI Integration
 - AI-assisted contribution verification
-- Automated contribution quality assessment
+- Automated quality assessment
 - Personalized reward recommendations
 
----
+12. Conclusion
+--------------------------------------------------------------------------------
+Fleet Credits redefines cryptocurrency for post-scarcity economics, prioritizing velocity, utility, and network effects. MWEB enhances privacy and scalability, while mentorship rewards foster a cyclical learning ecosystem. Rigorous anti-abuse measures ensure genuine contributions, making FC a sustainable, community-driven platform.
 
-## 12. Conclusion
-
-Fleet Credits proposes a novel approach to cryptocurrency design by prioritizing post-scarcity economics over artificial scarcity. The system enables high-velocity micro-transactions, incentivizes community contributions, and maintains decentralization through Proof-of-Work consensus.
-
-Key innovations include the contribution reward system, dynamic fee structure, and community-governed reserve allocation. These mechanisms create sustainable economic incentives for public goods production while maintaining the security and decentralization of traditional blockchain systems.
-
-The unlimited supply model, while unconventional, aligns with post-scarcity economic principles where production capacity becomes effectively infinite. Value emerges from utility, velocity, and network effects rather than artificial scarcity.
-
-Implementation will proceed through rigorous testing on testnet, security audits, and gradual mainnet deployment. The open-source nature of the project enables community participation in development, governance, and ecosystem growth.
-
----
-
-## References
-
+References
+--------------------------------------------------------------------------------
 [1] Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System.
-
-[2] Dogecoin Core (2024). Dogecoin: The fun and friendly internet currency. https://github.com/dogecoin/dogecoin
-
+[2] Dogecoin Core (2024). https://github.com/dogecoin/dogecoin
 [3] Larimer, D. (2013). Delegated Proof-of-Stake Consensus.
-
 [4] Back, A. (2002). Hashcash - A Denial of Service Counter-Measure.
-
 [5] Percival, C. (2009). Stronger Key Derivation via Sequential Memory-Hard Functions.
+[6] Litecoin MWEB (2022). https://litecoin.org/mweb
+[7] Fleet Credits Core Repository (2026). https://github.com/JeremyGits/DogecoinProposal
 
-[6] Fleet Credits Core Repository (2026). https://github.com/JeremyGits/DogecoinProposal
-
----
-
-## Appendix A: Transaction Serialization
-
-```
-Standard Transaction:
+Appendix A: Transaction Serialization
+--------------------------------------------------------------------------------
+**Standard Transaction**:
 +---------------+---------------+----------+----------+
 | Field         | Type          | Size     | Value    |
 +---------------+---------------+----------+----------+
@@ -539,7 +446,7 @@ Standard Transaction:
 | locktime      | uint32        | 4 bytes  | time/height |
 +---------------+---------------+----------+----------+
 
-Contribution Transaction:
+**Contribution Transaction**:
 +---------------+---------------+----------+----------+
 | Field         | Type          | Size     | Value    |
 +---------------+---------------+----------+----------+
@@ -551,11 +458,9 @@ Contribution Transaction:
 | timestamp     | uint64        | 8 bytes  | ...      |
 | signature     | signature     | 64 bytes | ...      |
 +---------------+---------------+----------+----------+
-```
 
-## Appendix B: Network Messages
-
-```
+Appendix B: Network Messages
+--------------------------------------------------------------------------------
 version:
 +---------------+--------+
 | Field         | Size   |
@@ -587,23 +492,20 @@ block:
 | txn_count     | varint |
 | transactions  | var    |
 +---------------+--------+
-```
 
-## Appendix C: Mathematical Notations
+Appendix C: Mathematical Notations
+--------------------------------------------------------------------------------
+- H(x): Cryptographic hash function
+- H_S(x): Scrypt hash function
+- SIG_k(H(x)): Digital signature of hash x with key k
+- PK_a: Public key of address a
+- SK_a: Private key of address a
+- F(x): Fee calculation function
+- R(B): Block reward for block B
+- T(B): Timestamp of block B
+- D(B): Difficulty of block B
 
-- `H(x)`: Cryptographic hash function
-- `H_S(x)`: Scrypt hash function
-- `SIG_k(H(x))`: Digital signature of hash x with key k
-- `PK_a`: Public key of address a
-- `SK_a`: Private key of address a
-- `F(x)`: Fee calculation function
-- `R(B)`: Block reward for block B
-- `T(B)`: Timestamp of block B
-- `D(B)`: Difficulty of block B
-
----
-
-**Document Version:** 1.0  
-**Last Updated:** 2026-01-XX  
-**Authors:** Fleet Credits Development Team  
-**License:** MIT
+Document Version: 1.1
+Last Updated: 2026-02-XX
+Authors: Fleet Credits Development Team
+License: MIT
