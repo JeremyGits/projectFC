@@ -148,35 +148,44 @@ MWEB transactions use Pedersen commitments and ring signatures for privacy.
 ## 4. Contribution Reward System
 
 ### 4.1 Motivation
-FC rewards computational effort and community contributions, including code mentorship, to incentivize public goods.
+FC rewards computational effort and community contributions, including code mentorship, to incentivize public goods. In an era of AI-driven automation displacing traditional jobs, FC creates economic opportunities for human validation, verification, and input processing—essential for training, refining, and ethically guiding AI systems. This fosters a symbiotic human-AI economy where humans earn FC for irreplaceable oversight, ensuring AI benefits society equitably.
 
 ### 4.2 Contribution Transaction Format
 ```pseudocode
 ContribTransaction = {
     timestamp: uint64,
     contributor: public_key,
-    contribution_type: enum(CODE_CONTRIBUTION, CHARITABLE_ACT, CREATIVE_WORK, EDUCATIONAL_CONTENT, CODE_MENTORSHIP),
+    contribution_type: enum(
+        CODE_CONTRIBUTION, 
+        CHARITABLE_ACT, 
+        CREATIVE_WORK, 
+        EDUCATIONAL_CONTENT, 
+        CODE_MENTORSHIP,
+        AI_VALIDATION,          // Human review of AI-generated outputs (e.g., code, content)
+        DATA_LABELING,          // Annotating datasets for AI training
+        ETHICAL_REVIEW          // Assessing AI for bias, safety, and alignment
+    ),
     proof_data: bytes,
     signature: signature
 }
 ```
 
-**CODE_MENTORSHIP**:
-- Mentors validate novice coders’ submissions, providing feedback.
+**CODE_MENTORSHIP** (and Other Mentorships):
+- Mentors validate novice coders’ submissions, providing feedback. Extend to AI_MENTORSHIP: Humans mentor AI models by curating training data or correcting outputs.
 ```pseudocode
 MentorshipTransaction = {
     timestamp: uint64,
     mentor: public_key,
-    mentee: public_key,
-    contribution_type: CODE_MENTORSHIP,
+    mentee: public_key,  // Or AI_model_id for AI mentorship
+    contribution_type: enum(CODE_MENTORSHIP, AI_MENTORSHIP),
     proof_data: {
-        code_commit: hash,
+        code_commit: hash,       // Or ai_output_hash for AI tasks
         feedback: string,
         approval_status: enum(APPROVED, REJECTED, NEEDS_WORK),
         improvement_commit: hash
     },
     mentor_signature: signature,
-    mentee_signature: signature
+    mentee_signature: signature  // Optional for AI
 }
 ```
 
@@ -192,27 +201,37 @@ MWEB_ContribTransaction = {
 }
 ```
 
+**New Types Logical Enhancements**:
+- **AI_VALIDATION**: Humans audit AI-generated code/content for accuracy, creativity, or functionality (e.g., fixing hallucinations in LLM outputs).
+- **DATA_LABELING**: Crowd-sourced annotation of images/text for ML datasets, with quality scored by consensus.
+- **ETHICAL_REVIEW**: Flag biases or risks in AI decisions, supporting alignment research.
+
+These types address AI-era demands: As automation offsets jobs, FC incentivizes human expertise in verification, creating scalable, rewarding roles.
+
 ### 4.3 Proof Verification
-To prevent abuse:
-1. **Code Contributions**:
-   - Verify quality (>10 lines, passes linting) and account history (>30 days).
+To prevent abuse and ensure quality, especially in human-AI hybrids:
+1. **Code Contributions** (and AI_VALIDATION):
+   - Verify quality (>10 lines, passes linting) and account history (>30 days). For AI validation, require >80% accuracy score against ground truth.
    ```pseudocode
-   verify_code_submission(tx) → bool {
-       commit = github_api.get_commit(tx.proof_data.code_commit)
+   verify_code_submission(tx) → bool {  // Extends to AI validation
+       commit = github_api.get_commit(tx.proof_data.code_commit)  // Or ai_output
        return commit.lines_changed > 10 && commit.passes_lint &&
-              github_api.account_age(tx.contributor) > 30_days
+              github_api.account_age(tx.contributor) > 30_days &&
+              (tx.type == AI_VALIDATION ? ai_accuracy(tx.proof_data) >= 0.8 : true)
    }
    ```
 
-2. **Code Mentorship**:
-   - Validate feedback (>50 words, non-boilerplate) and approval status.
-   - Randomly audit 10% of transactions via oracles (3/5 agreement).
-   - Require identity verification (e.g., DID).
+2. **Code Mentorship** (and Other Mentorships like AI_MENTORSHIP):
+   - Validate feedback (>50 words, non-boilerplate) and approval status. For AI mentorship, include human override of AI suggestions.
+   - Randomly audit 10% via oracles (3/5 agreement); require DID verification.
+   - Extend to peer mentorship in data labeling/ethical review.
    ```pseudocode
    verify_mentorship(tx, oracles) → bool {
        if length(tx.proof_data.feedback) > 50 &&
           !is_boilerplate(tx.proof_data.feedback) &&
           identity_verified(tx.mentor) && identity_verified(tx.mentee):
+           if tx.type == AI_MENTORSHIP:
+               return human_override_verified(tx.proof_data)  // Human flags AI errors
            if random_audit_trigger():
                votes = [oracle.verify(tx.proof_data) for oracle in random_oracle_selection(oracles)]
                return sum(votes) >= (oracles.length * 3 / 5)
@@ -221,20 +240,29 @@ To prevent abuse:
    }
    ```
 
-3. **Engagement Verification**:
-   - Educational content requires quiz responses (80% accuracy) or time-based interaction.
+3. **Engagement Verification** (for DATA_LABELING, ETHICAL_REVIEW):
+   - Educational content requires quiz responses (80% accuracy). For data labeling, use inter-annotator agreement (>70% consensus among 3 humans). Ethical reviews need rationale (>100 words) and oracle consensus.
    ```pseudocode
    verify_engagement(tx) → bool {
        if tx.contribution_type == EDUCATIONAL_CONTENT:
            quiz_result = smart_contract.verify_quiz(tx.proof_data)
            return quiz_result.score >= 0.8
+       else if tx.contribution_type == DATA_LABELING:
+           agreement = consensus_score(tx.proof_data.annotations, min_annotators=3)
+           return agreement >= 0.7
+       else if tx.contribution_type == ETHICAL_REVIEW:
+           return length(tx.proof_data.rationale) > 100 && oracle_consensus(tx)
        return false
    }
    ```
 
-4. **Community Oversight**:
-   - 24-hour challenge period for flagging suspicious contributions.
-   - Rewards flaggers 100 FC for valid reports.
+4. **Community Oversight** (Enhanced for Scalability):
+   - 24-hour challenge period for flagging suspicious contributions (e.g., AI-generated spam).
+   - Bounty system: Validators earn 100-500 FC for confirmed flags, prioritized for human-AI tasks (e.g., 200 FC for ethical disputes).
+   - MWEB integration: Private reviews via blinded submissions, with view keys for oversight audits.
+   - Human Validator Pool: Reputation-gated participants (e.g., >50 verified contributions) form a DAO-like pool for batch verifications, creating job-like streams.
+
+These mechanisms ensure robust, fraud-resistant verification while scaling human input for AI needs.
 
 ### 4.4 Block Reward Calculation
 ```pseudocode
@@ -244,26 +272,28 @@ bonus_multiplier = {
     1.10,   if contrib_tx verified and bonus level = MEDIUM
     1.15,   if contrib_tx verified and bonus level = HIGH
     1.20,   if contrib_tx verified and bonus level = CRITICAL
+    1.25,   if contrib_tx involves human-AI validation (e.g., AI_VALIDATION, AI_MENTORSHIP)  // New tier for future-proofing
 }
 block_reward = base_reward × bonus_multiplier
 ```
 
-**Mentorship Rewards**:
-- Mentees: 1000 FC base + 500 FC for improvements; milestones (5, 10 contributions) grant 1.10x, 1.15x bonuses.
-- Mentors: 2000 FC per review + 1.10x–1.15x for complexity; reputation points unlock higher tiers.
+**Mentorship Rewards** (Improved Logic):
+- Mentees: 1000 FC base + 500 FC for improvements; milestones (5, 10 contributions) grant 1.10x, 1.15x bonuses. For AI mentorship, add 300 FC for data curation.
+- Mentors/Validators: 2000 FC per review + 1.10x–1.15x for complexity; 1.25x premium for AI-related tasks (e.g., ethical reviews). Reputation points unlock governance roles; batch verifications (e.g., 10 data labels) yield 1.5x efficiency bonus.
+- Other Mentorships: Extend to domain experts (e.g., 2500 FC for ethical AI reviews), fostering specialized human roles in an AI-offset job market.
 
 ### 4.5 Replay Prevention
-Contributions include timestamps and block heights to prevent replays.
+Contributions include timestamps and block heights to prevent replays. For AI validation, include unique nonces per dataset/output to avoid duplicate human efforts.
 
 ### 4.6 Mentorship-Based Learning Ecosystem
-Experienced coders (“real coders”) mentor novices (“vibe coders”), who become mentors:
-- **Vibe Coder Incentives**: 1000 FC for valid code, 500 FC for improvements, bonuses for milestones.
-- **Real Coder Incentives**: 2000 FC per review, reputation points for governance.
-- **Learning Pathways**: 500 FC for completing tutorials via the wallet interface.
-- **Transition**: Vibe coders with 10 contributions and >100 reputation become mentors.
+Experienced coders (“real coders”) mentor novices (“vibe coders”), who become mentors. Expand to AI ecosystem:
+- **Vibe Coder Incentives**: 1000 FC for valid code, 500 FC for improvements, bonuses for milestones. Add 750 FC for AI-assisted coding (human verifies AI suggestions).
+- **Real Coder Incentives**: 2000 FC per review, reputation points for governance. Premium for AI mentorship: Guide novices in using tools like GitHub Copilot, earning 2500 FC for hybrid sessions.
+- **Learning Pathways**: 500 FC for completing tutorials via wallet interface; new track for AI literacy (e.g., 800 FC for data labeling certification).
+- **Transition**: Vibe coders with 10 contributions and >100 reputation become mentors. AI validators transition to ethical reviewers after 20 tasks.
+- **Human-AI Symbiosis**: Mentorship includes teaching AI usage, while humans provide the "human touch" (e.g., creative feedback AI can't replicate), creating jobs in verification/processing as AI automates routine work.
 
 **Chart: Vibe Coder Progression**
- 
 ![Vibe Coder Progression to Mentor](https://i.imgur.com/olIzSwc.png)
 
 ## 5. Consensus Mechanism
@@ -334,7 +364,6 @@ Simulation:
 - Results: By Year 5, inflation falls to 20%, demand reaches 75.7B FC/year.
 
 **Chart: Inflation vs. Demand**
- 
 ![Inflation vs. Demand](https://i.imgur.com/QPhLEvx.png)
 
 ### 6.8 Addressing Unlimited Supply Concerns
@@ -461,7 +490,6 @@ Fork of Dogecoin Core (v1.14), modified for:
 Compatible with Scrypt-capable CPU, GPU, and ASIC miners. To promote accessibility, Fleet Credits supports mobile mining for lightweight contributions, allowing users to participate via apps on Android/iOS devices for small-scale PoW tasks or contribution verification.
 
 **Chart: Mobile Mining Contributions**
- 
 ![Mobile Mining Contributions](https://i.imgur.com/i5v4BJX.png)
 
 ## 11. Future Research Directions
