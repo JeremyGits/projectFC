@@ -431,6 +431,7 @@ References
 [7] Fleet Credits Core Repository (2026). https://github.com/JeremyGits/DogecoinProposal
 
 Appendix A: Transaction Serialization
+<pre>
 --------------------------------------------------------------------------------
 **Standard Transaction**:
 +---------------+---------------+----------+----------+
@@ -443,7 +444,9 @@ Appendix A: Transaction Serialization
 | outputs[]     | TxOutput[]    | variable | ...      |
 | locktime      | uint32        | 4 bytes  | time/height |
 +---------------+---------------+----------+----------+
+</pre>
 
+<pre>
 **Contribution Transaction**:
 +---------------+---------------+----------+----------+
 | Field         | Type          | Size     | Value    |
@@ -456,7 +459,9 @@ Appendix A: Transaction Serialization
 | timestamp     | uint64        | 8 bytes  | ...      |
 | signature     | signature     | 64 bytes | ...      |
 +---------------+---------------+----------+----------+
+</pre>
 
+<pre>
 Appendix B: Network Messages
 --------------------------------------------------------------------------------
 version:
@@ -473,6 +478,7 @@ version:
 | start_height  | 4      |
 | relay         | 1      |
 +---------------+--------+
+</pre>
 
 inv (inventory):
 +---------------+--------+
