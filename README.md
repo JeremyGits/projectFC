@@ -653,6 +653,6 @@ block:
 - D(B): Difficulty of block B
 
 Document Version: 1.1  
-Last Updated: 2026-02-25  
+Last Updated: 2026-02-27  
 Authors: Fleetitoshi Nakamoto  
 License: 🤷‍♂️
