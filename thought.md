@@ -23,6 +23,7 @@ Based on Dogecoin Core Architecture
   - [4.4 Block Reward Calculation](#44-block-reward-calculation)
   - [4.5 Replay Prevention](#45-replay-prevention)
   - [4.6 Mentorship-Based Learning Ecosystem](#46-mentorship-based-learning-ecosystem)
+  - [4.7 Blockchain and MWEB Implementation](#47-blockchain-and-mweb-implementation)
 - [5. Consensus Mechanism](#5-consensus-mechanism)
   - [5.1 Proof-of-Work Parameters](#51-proof-of-work-parameters)
   - [5.2 Difficulty Adjustment](#52-difficulty-adjustment)
@@ -295,6 +296,30 @@ Experienced coders (“real coders”) mentor novices (“vibe coders”), who b
 
 **Chart: Vibe Coder Progression**
 ![Vibe Coder Progression to Mentor](https://i.imgur.com/olIzSwc.png)
+
+### 4.7 Blockchain and MWEB Implementation
+The contribution system operates immutably on the Fleet Credits blockchain (Dogecoin Core fork) with MWEB for privacy and scalability, enabling decentralized human-AI collaboration in an era of job market offsets from automation.
+
+#### On-Chain Mechanics
+- **Transaction Submission**: Users broadcast `ContribTransaction`s to the mempool as special UTXO txs with a `tx_type` flag (e.g., 0x01). `proof_data` embeds verifiable evidence: GitHub hashes for code, IPFS links for data labels, or AI output diffs for validation. For AI tasks, include unique nonces to prevent replays. Nodes validate basics (signatures, size <2MB) before mining into 60s blocks. A small stake (e.g., 10 FC, refundable) deters spam.
+  
+- **Verification Process**: Blocks trigger checks via consensus rules (e.g., in `src/validation.cpp`). Automated pseudocode (e.g., `verify_code_submission`) runs on-chain for simple cases. Complex verifications (mentorship, ethical reviews) use off-chain oracles (e.g., Chainlink-like, 3/5 consensus with 500k FC stakes). Community oversight employs "challenge txs" (flag within 24h), resolved by a reputation-gated validator pool (>50 contributions to join) via DAO-like votes. For data labeling, inter-annotator agreement (>70% among 3+ humans) settles in batch txs using Merkle proofs. ZK attachments optionally prove overrides without revealing details.
+
+- **Reward Distribution**: Verified txs boost block rewards (10k FC base + multipliers, e.g., 1.25x for AI validation). Miners claim via inclusion; payouts mint as UTXOs to contributors (or multisig for pairs). Batch verifs auto-distribute (e.g., 1.5x efficiency for 10 labels). Oversight bounties (100-500 FC) draw from the reserve, auto-claimed on resolution.
+
+#### MWEB Integration
+Users opt-in by pegging FC to MWEB (1:1 atomic swaps). Blinded txs hide amounts/senders via Pedersen commitments (`C = vG + rH`); kernels prove validity/fees. `proof_data` remains metadata for oracles. AI validations (e.g., ethical flags) stay private, with view keys for audits. Cut-through prunes spent UTXOs, supporting 100k+ daily txs (90% size reduction). Peg-outs deliver rewards confidentially; multisig (2-of-3) + 24h timelocks secure transfers.
+
+#### Realism for AI-Era Human Jobs and Sustainability
+As AI automates ~45% of tasks by 2030, FC creates decentralized gigs for validation (e.g., $100B data market). On-chain proofs ensure fair pay; velocity (millions of micro-txs) stabilizes value via utility. Unlimited supply (5.256B FC/year) funds rewards without inflation spikes, with reserve (1% fees) seeding bounties.
+
+#### Challenges and Mitigations
+- **Oracle Trust**: Rotation via governance; slashing for bad votes.
+- **Scalability**: 2MB blocks + MWEB; layer-2 (state channels) for batches.
+- **Adoption**: Testnet bounties; partnerships (e.g., Hugging Face for labeling).
+- **Regulatory**: Utility framing; MWEB for privacy compliance.
+
+This design scales human input for AI needs, fostering a sustainable, borderless economy.
 
 ## 5. Consensus Mechanism
 
