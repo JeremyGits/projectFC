@@ -480,6 +480,7 @@ version:
 +---------------+--------+
 </pre>
 
+<pre>
 inv (inventory):
 +---------------+--------+
 | Field         | Size   |
@@ -487,7 +488,9 @@ inv (inventory):
 | count         | varint |
 | inventory[]   | 36*N   |
 +---------------+--------+
+</pre>
 
+<pre>
 block:
 +---------------+--------+
 | Field         | Size   |
@@ -496,7 +499,10 @@ block:
 | txn_count     | varint |
 | transactions  | var    |
 +---------------+--------+
+</pre>
 
+
+<pre>
 Appendix C: Mathematical Notations
 --------------------------------------------------------------------------------
 - H(x): Cryptographic hash function
@@ -508,8 +514,9 @@ Appendix C: Mathematical Notations
 - R(B): Block reward for block B
 - T(B): Timestamp of block B
 - D(B): Difficulty of block B
+</pre>
 
 Document Version: 1.1
-Last Updated: 2026-02-XX
+Last Updated: 2026-02-25
 Authors: Fleet Credits Development Team
 License: MIT
