@@ -518,5 +518,5 @@ Appendix C: Mathematical Notations
 
 Document Version: 1.1
 Last Updated: 2026-02-25
-Authors: Fleet Credits Development Team
+Authors: Fleetitoshi Nakamoto
 License: MIT
