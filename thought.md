@@ -263,6 +263,7 @@ Experienced coders (“real coders”) mentor novices (“vibe coders”), who b
 - **Transition**: Vibe coders with 10 contributions and >100 reputation become mentors.
 
 **Chart: Vibe Coder Progression**
+ 
 ![Vibe Coder Progression to Mentor](https://i.imgur.com/olIzSwc.png)
 
 ## 5. Consensus Mechanism
@@ -333,6 +334,7 @@ Simulation:
 - Results: By Year 5, inflation falls to 20%, demand reaches 75.7B FC/year.
 
 **Chart: Inflation vs. Demand**
+ 
 ![Inflation vs. Demand](https://i.imgur.com/QPhLEvx.png)
 
 ### 6.8 Addressing Unlimited Supply Concerns
@@ -459,6 +461,7 @@ Fork of Dogecoin Core (v1.14), modified for:
 Compatible with Scrypt-capable CPU, GPU, and ASIC miners. To promote accessibility, Fleet Credits supports mobile mining for lightweight contributions, allowing users to participate via apps on Android/iOS devices for small-scale PoW tasks or contribution verification.
 
 **Chart: Mobile Mining Contributions**
+ 
 ![Mobile Mining Contributions](https://i.imgur.com/i5v4BJX.png)
 
 ## 11. Future Research Directions
