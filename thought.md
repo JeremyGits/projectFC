@@ -49,7 +49,6 @@ Transactions are timestamped into a hash-based Proof-of-Work chain, using Scrypt
 4. Broadcast valid block
 5. Accept block if transactions are valid
 6. Chain blocks using previous hash
-
 MWEB transactions follow a similar protocol with confidential commitments.
 
 3. Transaction Model
@@ -80,7 +79,6 @@ A transaction is valid if:
 2. Input values cover outputs and fees
 3. Cryptographically signed
 4. Within network size limits
-
 MWEB transactions use Pedersen commitments and ring signatures for privacy.
 
 4. Contribution Reward System
@@ -208,13 +206,13 @@ Scrypt parameters:
 new_difficulty = old_difficulty × (target_time / actual_time)
 
 5.3 Network Parameters
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| Block Time | 60s | Target time between blocks |
-| Block Size | 2 MB | Maximum block size (main chain) |
-| Base Reward | 10,000 FC | Fixed issuance |
-| Difficulty Adjustment | Every block | Dynamic adjustment |
-| Halving | None | Unlimited supply |
+| Parameter            | Value      | Description                        |
+|----------------------|------------|------------------------------------|
+| Block Time           | 60s        | Target time between blocks         |
+| Block Size           | 2 MB       | Maximum block size (main chain)    |
+| Base Reward          | 10,000 FC  | Fixed issuance                     |
+| Difficulty Adjustment| Every block| Dynamic adjustment                 |
+| Halving              | None       | Unlimited supply                   |
 
 MWEB increases effective block capacity (~2.6 MB) via cut-through.
 
@@ -245,12 +243,12 @@ reserve_balance(T) = Σ (fee(tx) × 0.01) for all tx in blocks 0..T
 3. Merchant Integration: Merchants accept FC via DEX, converting to fiat, as Monero supports private donations (e.g., WikiLeaks).
 
 6.6 Comparison to High-Supply Cryptocurrencies
-| Feature | Fleet Credits | Dogecoin |
-|---------|---------------|----------|
-| Supply | 5.256B FC/year | 5B DOGE/year |
-| Fees | Zero for <1000 FC | Low, non-zero |
-| Rewards | PoW + Contribution | PoW only |
-| Governance | On-chain, Reserve | Informal |
+| Feature         | Fleet Credits         | Dogecoin         |
+|-----------------|-----------------------|------------------|
+| Supply          | 5.256B FC/year        | 5B DOGE/year     |
+| Fees            | Zero for <1000 FC     | Low, non-zero    |
+| Rewards         | PoW + Contribution    | PoW only         |
+| Governance      | On-chain, Reserve     | Informal         |
 
 FC’s zero-fee micro-transactions and mentorship rewards drive higher velocity than Dogecoin.
 
